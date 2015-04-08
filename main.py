@@ -41,7 +41,7 @@ def dot_product(x, y):
 
 
 def dice(x, y):
-    return 1 - (2.0 * norm(ngram_vector(x) & ngram_vector(y))) / (norm(ngram_vector(x)) + norm(ngram_vector(y)))
+    return 1 - (2.0 * norm(x & y)) / (norm(x) + norm(y))
 
 
 def cosine(x, y):
@@ -52,3 +52,22 @@ def cosine(x, y):
 with open("data/lines.txt") as file:
     lines = file.readlines()
 normalized_lines = map(lambda x: normalize_text(x), lines)
+ngrams = map(lambda x: ngram_vector(x), normalized_lines)
+
+for x in range(1, 15):
+    alpha = (1.0 * x)/100
+    all = set()
+    clusters = []
+    for i in range(len(ngrams)):
+        if not (i in all):
+            all.add(i)
+            clusters.append({i})
+            for j in range(i, len(ngrams)):
+                if (not (j in all)) and dice(ngrams[i], ngrams[j]) < alpha:
+                    all.add(j)
+                    clusters[-1].add(j)
+    with open("data/result_"+str(x), "wx") as file:
+        for cluster in clusters:
+            for m in cluster:
+                file.write(lines[m])
+            file.write("\n##########\n")
